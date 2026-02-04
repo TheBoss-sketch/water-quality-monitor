@@ -44,5 +44,26 @@
     <p id="temp">--</p>
   </div>
 
+  <script>
+    const API_URL = "https://water-quality-backend-gl86.onrender.com/data";
+
+    async function fetchData() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+
+        document.getElementById("ph").textContent = data.pH;
+        document.getElementById("tds").textContent = data.TDS;
+        document.getElementById("turbidity").textContent = data.Turbidity;
+        document.getElementById("temp").textContent = data.Temperature;
+      } catch (e) {
+        console.log("Fetch error", e);
+      }
+    }
+
+    fetchData();
+    setInterval(fetchData, 5000);
+  </script>
+  
 </body>
 </html>
