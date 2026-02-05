@@ -1,14 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Smart Water Quality Monitor</title>
   <meta charset="UTF-8">
+  <title>Smart Water Quality Monitor</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
       background: #f4f6f8;
       text-align: center;
+      margin: 0;
+      padding: 0;
     }
+
+    h1 {
+      margin-top: 30px;
+    }
+
     .card {
       background: white;
       width: 300px;
@@ -17,16 +25,33 @@
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-    .good { color: green; }
-    .moderate { color: orange; }
-    .poor { color: red; }
+
+    .good {
+      color: green;
+      font-weight: bold;
+    }
+
+    .moderate {
+      color: orange;
+      font-weight: bold;
+    }
+
+    .poor {
+      color: red;
+      font-weight: bold;
+    }
+
+    .error {
+      color: red;
+      font-size: 14px;
+    }
   </style>
 </head>
 
 <body>
 
   <h1>Smart Water Quality Monitor</h1>
-  <p>ESP32-based IoT System</p>
+  <p>ESP32 + Cloud Backend</p>
 
   <div class="card">
     <h3>Temperature</h3>
@@ -34,7 +59,7 @@
   </div>
 
   <div class="card">
-    <h3>Turbidity (Raw)</h3>
+    <h3>Turbidity (Raw ADC)</h3>
     <p id="turb">--</p>
   </div>
 
@@ -44,37 +69,59 @@
     <p id="score">Score: --</p>
   </div>
 
+  <p id="status" class="error"></p>
+
   <script>
+    // ===== BACKEND URL (CONFIRMED) =====
     const backendURL = "https://water-quality-backend-gl86.onrender.com/data";
 
     async function fetchData() {
       try {
-        const res = await fetch(backendURL);
-        const data = await res.json();
+        const response = await fetch(backendURL);
 
+        if (!response.ok) {
+          throw new Error("Backend response not OK");
+        }
+
+        const data = await response.json();
+
+        // Update temperature
         document.getElementById("temp").innerText =
           data.temperature.toFixed(1) + " °C";
 
+        // Update turbidity
         document.getElementById("turb").innerText =
           data.turbidity;
 
+        // Update quality
         const q = document.getElementById("quality");
         q.innerText = data.quality;
 
+        // Reset classes
         q.className = "";
+
         if (data.quality === "Good") q.classList.add("good");
         if (data.quality === "Moderate") q.classList.add("moderate");
         if (data.quality === "Poor") q.classList.add("poor");
 
+        // Update score
         document.getElementById("score").innerText =
           "Score: " + data.score;
 
-      } catch (err) {
-        console.error("Fetch error:", err);
+        // Clear error
+        document.getElementById("status").innerText = "";
+
+      } catch (error) {
+        console.error(error);
+        document.getElementById("status").innerText =
+          "Unable to fetch data from backend";
       }
     }
 
+    // Fetch immediately
     fetchData();
+
+    // Update every 5 seconds
     setInterval(fetchData, 5000);
   </script>
 
