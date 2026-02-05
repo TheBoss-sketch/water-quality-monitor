@@ -17,53 +17,66 @@
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
+    .good { color: green; }
+    .moderate { color: orange; }
+    .poor { color: red; }
   </style>
 </head>
+
 <body>
 
   <h1>Smart Water Quality Monitor</h1>
   <p>ESP32-based IoT System</p>
 
   <div class="card">
-    <h3>pH</h3>
-    <p id="ph">--</p>
-  </div>
-
-  <div class="card">
-    <h3>TDS</h3>
-    <p id="tds">--</p>
-  </div>
-
-  <div class="card">
-    <h3>Turbidity</h3>
-    <p id="turbidity">--</p>
-  </div>
-
-  <div class="card">
     <h3>Temperature</h3>
-    <p id="temp">--</p>
+    <p id="temp">-- °C</p>
+  </div>
+
+  <div class="card">
+    <h3>Turbidity (Raw)</h3>
+    <p id="turb">--</p>
+  </div>
+
+  <div class="card">
+    <h3>Overall Water Quality</h3>
+    <p id="quality">--</p>
+    <p id="score">Score: --</p>
   </div>
 
   <script>
-    const API_URL = "https://water-quality-backend-gl86.onrender.com/data";
+    const backendURL = "https://YOUR-BACKEND-URL/data";
 
     async function fetchData() {
       try {
-        const res = await fetch(API_URL);
+        const res = await fetch(backendURL);
         const data = await res.json();
 
-        document.getElementById("ph").textContent = data.pH;
-        document.getElementById("tds").textContent = data.TDS;
-        document.getElementById("turbidity").textContent = data.Turbidity;
-        document.getElementById("temp").textContent = data.Temperature;
-      } catch (e) {
-        console.log("Fetch error", e);
+        document.getElementById("temp").innerText =
+          data.temperature.toFixed(1) + " °C";
+
+        document.getElementById("turb").innerText =
+          data.turbidity;
+
+        const q = document.getElementById("quality");
+        q.innerText = data.quality;
+
+        q.className = "";
+        if (data.quality === "Good") q.classList.add("good");
+        if (data.quality === "Moderate") q.classList.add("moderate");
+        if (data.quality === "Poor") q.classList.add("poor");
+
+        document.getElementById("score").innerText =
+          "Score: " + data.score;
+
+      } catch (err) {
+        console.error("Fetch error:", err);
       }
     }
 
     fetchData();
     setInterval(fetchData, 5000);
   </script>
-  
+
 </body>
 </html>
