@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Water Control Panel</title>
+  <meta charset="UTF-8">
+
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      background: #111;
+      color: white;
+      padding: 30px;
+    }
+
+    .card {
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 30px;
+    }
+
+    input[type=range] {
+      width: 80%;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      background: #00c853;
+      color: white;
+      border-radius: 5px;
+      font-size: 16px;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Control Panel</h1>
+
+  <div class="card">
+    <h3>TDS Control</h3>
+
+    <input type="range" min="0" max="1000" value="500" id="tdsSlider">
+
+    <p>TDS Value: <span id="tdsVal">500</span></p>
+
+    <button onclick="sendTDS()">Apply</button>
+  </div>
+
+  <script>
+    const backendURL = "https://water-quality-backend-gl86.onrender.com/set-tds";
+
+    const slider = document.getElementById("tdsSlider");
+    const display = document.getElementById("tdsVal");
+
+    slider.oninput = function () {
+      display.innerText = this.value;
+    };
+
+    function sendTDS() {
+      const value = Number(slider.value);
+
+      fetch(backendURL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ tds: value })
+      });
+
+      alert("TDS Updated: " + value);
+    }
+  </script>
+
+</body>
+</html>
